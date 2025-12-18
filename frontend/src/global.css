@@ -1,0 +1,233 @@
+:root {
+  --beige: #f4ede1;
+  --beige-soft: #f8f1e7;
+  --granite-dark: #2f2f31;
+  --granite-mid: #3a3b3f;
+  --text-dark: #262320;
+  --muted: #6b6458;
+  --accent: #d0c1a5;
+  --success: #7ed0a3;
+  --error: #ff6b7a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--beige);
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(0, 0, 0, 0.03), transparent 30%),
+    radial-gradient(circle at 80% 0%, rgba(0, 0, 0, 0.025), transparent 28%),
+    radial-gradient(circle at 10% 80%, rgba(0, 0, 0, 0.02), transparent 26%),
+    linear-gradient(120deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.1));
+  color: var(--text-dark);
+  font-family: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+main,
+section,
+h1,
+h2,
+h3,
+p,
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: inherit;
+}
+
+.page-shell {
+  min-height: 100vh;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.02), transparent 35%), var(--beige);
+}
+
+.page-content {
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 2.5rem;
+}
+
+.section-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.stone-panel {
+  background-color: var(--granite-dark);
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.08), transparent 30%),
+    radial-gradient(circle at 80% 10%, rgba(255, 255, 255, 0.06), transparent 28%),
+    radial-gradient(circle at 12% 80%, rgba(255, 255, 255, 0.05), transparent 25%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 35%, transparent 40%),
+    linear-gradient(45deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.05));
+  color: #f5f5f5;
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.28);
+  width: 100%;
+  max-width: 90vw;
+  margin: 0 auto;
+}
+
+.stone-panel h1,
+.stone-panel h2,
+.stone-panel h3 {
+  color: #ffffff;
+  margin-bottom: 0.35rem;
+}
+
+.stone-panel p,
+.stone-panel small,
+.stone-panel label {
+  color: #e9e9ea;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.text-success {
+  color: var(--success);
+  font-weight: 700;
+}
+
+.text-error {
+  color: var(--error);
+  font-weight: 700;
+}
+
+.list-plain {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.grid-cards {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 1rem;
+}
+
+.stone-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+  height: 100%;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.stack-sm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.stack-md {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.align-end {
+  align-items: flex-end;
+  text-align: right;
+}
+
+button {
+  background: linear-gradient(135deg, #67686d, #4b4c50);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 0.55rem 0.95rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  filter: brightness(1.05);
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+input,
+textarea {
+  width: 100%;
+  background: var(--beige-soft);
+  border: 1px solid #d8cbb3;
+  border-radius: 10px;
+  padding: 0.55rem 0.65rem;
+  color: var(--text-dark);
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+label {
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 0.25rem;
+  color: #f1e9dd;
+}
+
+small {
+  color: #d7d7d9;
+}
+
+@media (max-width: 720px) {
+  .page-content {
+    padding: 1.25rem 1rem 2rem;
+  }
+
+  .flex-between {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .navbar {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    justify-items: center;
+  }
+
+  .navbar__section--right {
+    justify-self: center;
+  }
+
+  .grid-cards {
+    grid-template-columns: 1fr;
+  }
+}

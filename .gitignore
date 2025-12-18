@@ -1,0 +1,29 @@
+# Node / React
+frontend/node_modules/
+frontend/.cache/
+frontend/dist/
+frontend/build/
+frontend/coverage/
+
+# Python / Django
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.py[cod]
+backend/**/.pytest_cache/
+backend/.venv/
+backend/venv/
+backend/env/
+backend/.env
+backend/db.sqlite3
+backend/staticfiles/
+backend/media/
+
+# VS Code
+.vscode/
+.history/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+README.md
