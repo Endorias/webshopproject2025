@@ -6,17 +6,19 @@ const HomePage = () => {
   const { user } = useAuth();
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [items, setItems] = useState([]);
   const [itemsStatus, setItemsStatus] = useState("idle");
   const [itemsError, setItemsError] = useState("");
   const [cartMessage, setCartMessage] = useState("");
   const [cartStatus, setCartStatus] = useState("idle");
 
-  const fetchItems = async () => {
+  const fetchItems = async (query = "") => {
     setItemsStatus("loading");
     setItemsError("");
     try {
-      const data = await apiFetch("/items/");
+      const searchQuery = query ? `?q=${encodeURIComponent(query)}` : "";
+      const data = await apiFetch(`/items/${searchQuery}`);
       setItems(data || []);
       setItemsStatus("success");
     } catch (error) {
@@ -32,7 +34,7 @@ const HomePage = () => {
       const result = await apiFetch("/seed-demo/", { method: "POST" });
       setStatus("success");
       setMessage(result?.message || "Demo data generated successfully.");
-      await fetchItems();
+      await fetchItems(searchTerm);
     } catch (error) {
       setStatus("error");
       setMessage(error.message || "Failed to populate the database.");
@@ -42,6 +44,11 @@ const HomePage = () => {
   useEffect(() => {
     fetchItems();
   }, []);
+
+  const handleSearch = async (event) => {
+    event.preventDefault();
+    await fetchItems(searchTerm);
+  };
 
   const handleAddToCart = async (item) => {
     setCartStatus("loading");
@@ -79,12 +86,35 @@ const HomePage = () => {
       </section>
 
       <section className="stone-panel stack-md">
-        <div className="flex-between">
-          <h2>Items for Sale</h2>
-          {cartMessage ? (
-            <span className={cartStatus === "error" ? "text-error" : "text-success"}>{cartMessage}</span>
-          ) : null}
+        <div className="flex-between" style={{ alignItems: "center", gap: "1rem" }}>
+          <h2 style={{ margin: 0 }}>Items for Sale</h2>
+          <form
+            onSubmit={handleSearch}
+            className="stack-sm"
+            style={{ maxWidth: "420px", margin: 0, width: "100%" }}
+          >
+            <label htmlFor="search" style={{ display: "none" }}>
+              Search by title
+            </label>
+            <div
+              className="flex"
+              style={{ gap: "0.5rem", alignItems: "center", flexWrap: "nowrap", width: "100%" }}
+            >
+              <input
+                id="search"
+                type="text"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Search by title"
+                style={{ flex: 1, minWidth: 0 }}
+              />
+            </div>
+          </form>
         </div>
+        {cartMessage ? (
+          <span className={cartStatus === "error" ? "text-error" : "text-success"}>{cartMessage}</span>
+        ) : null}
+
         {itemsStatus === "loading" && <p>Loading items...</p>}
         {itemsStatus === "error" && <p className="text-error">{itemsError || "Could not load items."}</p>}
         {itemsStatus === "success" && items.length === 0 && <p>No items available.</p>}

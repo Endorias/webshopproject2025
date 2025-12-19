@@ -1,4 +1,3 @@
-"""Django settings for the webshop project scaffolding."""
 from pathlib import Path
 import os
 
@@ -70,8 +69,9 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# Allow frontend origin for session-based requests
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"]
 SESSION_COOKIE_SAMESITE = "None"
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "None"

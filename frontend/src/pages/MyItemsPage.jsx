@@ -9,20 +9,28 @@ const MyItemsPage = () => {
   const [price, setPrice] = useState("");
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("");
-  const [items, setItems] = useState([]);
-  const [itemsStatus, setItemsStatus] = useState("idle");
-  const [itemsError, setItemsError] = useState("");
+  const [inventory, setInventory] = useState({ on_sale: [], sold: [], purchased: [] });
+  const [inventoryStatus, setInventoryStatus] = useState("idle");
+  const [inventoryError, setInventoryError] = useState("");
+  const [editingItemId, setEditingItemId] = useState(null);
+  const [editingPrice, setEditingPrice] = useState("");
+  const [editStatus, setEditStatus] = useState("idle");
+  const [editMessage, setEditMessage] = useState("");
 
-  const loadMyItems = async () => {
-    setItemsStatus("loading");
-    setItemsError("");
+  const loadInventory = async () => {
+    setInventoryStatus("loading");
+    setInventoryError("");
     try {
-      const data = await apiFetch("/items/?mine=1");
-      setItems(Array.isArray(data) ? data : []);
-      setItemsStatus("success");
+      const data = await apiFetch("/inventory/");
+      setInventory({
+        on_sale: Array.isArray(data?.on_sale) ? data.on_sale : [],
+        sold: Array.isArray(data?.sold) ? data.sold : [],
+        purchased: Array.isArray(data?.purchased) ? data.purchased : [],
+      });
+      setInventoryStatus("success");
     } catch (error) {
-      setItemsStatus("error");
-      setItemsError(error.message || "Could not load your items.");
+      setInventoryStatus("error");
+      setInventoryError(error.message || "Could not load your items.");
     }
   };
 
@@ -40,28 +48,63 @@ const MyItemsPage = () => {
       setTitle("");
       setDescription("");
       setPrice("");
-      await loadMyItems();
+      await loadInventory();
     } catch (error) {
       setStatus("error");
       setMessage(error.message || "Could not create item.");
     }
   };
 
+  const startEditing = (item) => {
+    setEditingItemId(item.id);
+    setEditingPrice(item.price);
+    setEditStatus("idle");
+    setEditMessage("");
+  };
+
+  const cancelEditing = () => {
+    setEditingItemId(null);
+    setEditingPrice("");
+    setEditStatus("idle");
+  };
+
+  const handleEditSubmit = async (event) => {
+    event.preventDefault();
+    if (!editingItemId) return;
+
+    setEditStatus("loading");
+    setEditMessage("");
+    try {
+      const result = await apiFetch(`/items/${editingItemId}/`, {
+        method: "PATCH",
+        body: JSON.stringify({ price: editingPrice }),
+      });
+      setEditStatus("success");
+      setEditMessage(result?.message || "Price updated.");
+      setEditingItemId(null);
+      setEditingPrice("");
+      await loadInventory();
+    } catch (error) {
+      setEditStatus("error");
+      setEditMessage(error.message || "Could not update price.");
+    }
+  };
+
   const handleDelete = async (itemId) => {
     try {
       await apiFetch(`/items/${itemId}/`, { method: "DELETE" });
-      await loadMyItems();
+      await loadInventory();
     } catch (error) {
-      setItemsStatus("error");
-      setItemsError(error.message || "Could not delete item.");
+      setInventoryStatus("error");
+      setInventoryError(error.message || "Could not delete item.");
     }
   };
 
   useEffect(() => {
     if (user) {
-      loadMyItems();
+      loadInventory();
     } else {
-      setItems([]);
+      setInventory({ on_sale: [], sold: [], purchased: [] });
     }
   }, [user]);
 
@@ -121,30 +164,118 @@ const MyItemsPage = () => {
       </section>
 
       <section className="stone-panel stack-md" style={{ maxWidth: "1200px" }}>
-        <h2>My Items</h2>
-        {itemsStatus === "loading" && <p>Loading your items...</p>}
-        {itemsStatus === "error" && <p className="text-error">{itemsError}</p>}
-        {itemsStatus === "success" && items.length === 0 && <p>You have no items yet.</p>}
-        {itemsStatus === "success" && items.length > 0 && (
-          <ul className="list-plain grid-cards">
-            {items.map((item) => (
-              <li key={item.id} className="stone-card stack-sm">
-                <div className="flex-between" style={{ alignItems: "baseline" }}>
-                  <div className="stack-sm" style={{ gap: "0.2rem" }}>
-                    <h3 style={{ margin: 0 }}>{item.title}</h3>
-                    <small>
-                      Added: {item.date_added ? new Date(item.date_added).toLocaleString() : ""}
-                    </small>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontWeight: 700 }}>${item.price}</div>
-                    <button onClick={() => handleDelete(item.id)}>Delete</button>
-                  </div>
-                </div>
-                {item.description ? <p style={{ margin: 0 }}>{item.description}</p> : null}
-              </li>
-            ))}
-          </ul>
+        <div className="flex-between" style={{ alignItems: "center" }}>
+          <h2 style={{ margin: 0 }}>My Inventory</h2>
+          {inventoryStatus === "loading" && <span>Loading...</span>}
+        </div>
+        {inventoryStatus === "error" && <p className="text-error">{inventoryError}</p>}
+        {editMessage ? (
+          <p className={editStatus === "error" ? "text-error" : "text-success"}>{editMessage}</p>
+        ) : null}
+
+        {inventoryStatus === "success" && (
+          <div className="stack-md">
+            <div className="stack-sm">
+              <h3 style={{ margin: 0 }}>On Sale</h3>
+              {inventory.on_sale.length === 0 ? (
+                <p className="muted" style={{ margin: 0 }}>You have no items on sale.</p>
+              ) : (
+                <ul className="list-plain grid-cards">
+                  {inventory.on_sale.map((item) => (
+                    <li key={item.id} className="stone-card stack-sm">
+                      <div className="flex-between" style={{ alignItems: "baseline" }}>
+                        <div className="stack-sm" style={{ gap: "0.2rem" }}>
+                          <h4 style={{ margin: 0 }}>{item.title}</h4>
+                          <small>
+                            Added: {item.date_added ? new Date(item.date_added).toLocaleString() : ""}
+                          </small>
+                        </div>
+                        <div className="stack-sm" style={{ textAlign: "right", alignItems: "flex-end", display: "flex", flexDirection: "column" }}>
+                          {editingItemId === item.id ? (
+                            <form onSubmit={handleEditSubmit} className="stack-sm" style={{ alignItems: "flex-end" }}>
+                              <label htmlFor={`edit-price-${item.id}`} style={{ fontWeight: 600 }}>
+                                Price
+                              </label>
+                              <input
+                                id={`edit-price-${item.id}`}
+                                type="number"
+                                step="0.01"
+                                value={editingPrice}
+                                onChange={(e) => setEditingPrice(e.target.value)}
+                                required
+                                style={{ minWidth: "140px" }}
+                              />
+                              <div className="flex" style={{ gap: "0.5rem", justifyContent: "flex-end" }}>
+                                <button type="button" onClick={cancelEditing} disabled={editStatus === "loading"}>
+                                  Cancel
+                                </button>
+                                <button type="submit" disabled={editStatus === "loading"}>
+                                  {editStatus === "loading" ? "Saving..." : "Save"}
+                                </button>
+                              </div>
+                            </form>
+                          ) : (
+                            <>
+                              <div style={{ fontWeight: 700 }}>${item.price}</div>
+                              <div className="flex" style={{ gap: "0.5rem" }}>
+                                <button onClick={() => startEditing(item)}>Edit</button>
+                                <button onClick={() => handleDelete(item.id)}>Delete</button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                      {item.description ? <p style={{ margin: 0 }}>{item.description}</p> : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="stack-sm">
+              <h3 style={{ margin: 0 }}>Sold</h3>
+              {inventory.sold.length === 0 ? (
+                <p className="muted" style={{ margin: 0 }}>No sold items yet.</p>
+              ) : (
+                <ul className="list-plain grid-cards">
+                  {inventory.sold.map((item) => (
+                    <li key={item.id} className="stone-card stack-sm">
+                      <div className="flex-between" style={{ alignItems: "baseline" }}>
+                        <h4 style={{ margin: 0 }}>{item.title}</h4>
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontWeight: 700 }}>${item.price}</div>
+                          <small>Buyer: {item.buyer || "Unknown"}</small>
+                        </div>
+                      </div>
+                      {item.description ? <p style={{ margin: 0 }}>{item.description}</p> : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="stack-sm">
+              <h3 style={{ margin: 0 }}>Purchased</h3>
+              {inventory.purchased.length === 0 ? (
+                <p className="muted" style={{ margin: 0 }}>You have not purchased any items.</p>
+              ) : (
+                <ul className="list-plain grid-cards">
+                  {inventory.purchased.map((item) => (
+                    <li key={item.id} className="stone-card stack-sm">
+                      <div className="flex-between" style={{ alignItems: "baseline" }}>
+                        <h4 style={{ margin: 0 }}>{item.title}</h4>
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontWeight: 700 }}>${item.price}</div>
+                          <small>Seller: {item.owner}</small>
+                        </div>
+                      </div>
+                      {item.description ? <p style={{ margin: 0 }}>{item.description}</p> : null}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
         )}
       </section>
     </div>

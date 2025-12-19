@@ -15,7 +15,12 @@ export async function apiFetch(path, options = {}) {
 
   if (!response.ok) {
     const message = isJson ? payload?.message || "Request failed" : String(payload);
-    throw new Error(message);
+    const error = new Error(message);
+    error.status = response.status;
+    if (isJson) {
+      error.details = payload;
+    }
+    throw error;
   }
 
   return payload;
