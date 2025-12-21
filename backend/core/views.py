@@ -27,7 +27,7 @@ def _with_cors(request, response: HttpResponse) -> HttpResponse:
     else:
         response["Access-Control-Allow-Origin"] = "*"
     response["Access-Control-Allow-Headers"] = "Content-Type"
-    # Include PATCH/PUT so item edits can be performed from the frontend.
+
     response["Access-Control-Allow-Methods"] = "GET, POST, PATCH, PUT, DELETE, OPTIONS"
     return response
 
@@ -109,10 +109,8 @@ def list_items(request):
         if request.GET.get("mine"):
             if not request.user.is_authenticated:
                 return _with_cors(request, JsonResponse({"message": "Authentication required"}, status=401))
-            # When mine=1, show all statuses for the owner.
             items = items.filter(owner=request.user)
         else:
-            # Public listing only shows items still available.
             items = items.filter(status=STATUS_AVAILABLE)
 
         payload = [_serialize_item(item) for item in items]
@@ -333,7 +331,6 @@ def cart_pay(request):
             try:
                 expected_prices[cart_entry_id] = Decimal(str(entry.get("price")))
             except Exception:
-                # Ignore invalid price payloads; validation will happen against current prices.
                 continue
 
     with transaction.atomic():
@@ -562,7 +559,6 @@ def change_password(request):
 
     request.user.set_password(new_password)
     request.user.save()
-    # Keep the user logged in after password change.
     login(request, request.user)
 
     return _with_cors(request, JsonResponse({"message": "Password updated successfully"}, status=200))

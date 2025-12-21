@@ -14,7 +14,3 @@
 ## Run both
 - Use two terminals: one in `backend/` with `python manage.py runserver`, another in `frontend/` with `npm start`.
 
-## Project structure
-- `backend/`:  `config`, app `core` with landing view and `api/`.
-- `frontend/`:  `/`, `/signup`, `/login`, `/account`, `/myitems`,  `src/api/client.js`.
-
