@@ -1,10 +1,4 @@
 # Webshop Project 
-Max Tulus - max.tulus@abo.fi
-
-
-Requirements Implemented 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18
-
-
 ## Backend
 1. `cd backend`
 2. Install deps: `pip install -r requirements.txt`
